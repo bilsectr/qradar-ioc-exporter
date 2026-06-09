@@ -1,0 +1,19 @@
+# Copy to `docker-compose.override.yml` for local development tweaks.
+# The override file is applied automatically by `docker compose` on top of
+# docker-compose.yml and is gitignored-friendly (rename to drop `.example`).
+services:
+  qradar-ioc-exporter:
+    # Rebuild on code changes without cache headaches during development.
+    build:
+      context: .
+    # Bind-mount the source for live iteration (comment out for prod-like runs).
+    volumes:
+      - ./app:/app/app:ro
+      - ./certs:/app/certs
+      - ./logs:/app/logs
+    environment:
+      LOG_LEVEL: DEBUG
+      SYNC_INTERVAL_SECONDS: "60"
+    # Expose on a different host port if 8443 is taken locally.
+    # ports:
+    #   - "9443:8443"

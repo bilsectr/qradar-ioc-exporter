@@ -1,0 +1,19 @@
+services:
+  qradar-ioc-exporter:
+    build: .
+    image: qradar-ioc-exporter:latest
+    container_name: qradar-ioc-exporter
+    restart: unless-stopped
+    ports:
+      - "8443:8443"
+    env_file:
+      - .env
+    volumes:
+      - ./certs:/app/certs
+      - ./logs:/app/logs
+    healthcheck:
+      test: ["CMD", "python", "-m", "app.healthcheck"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
