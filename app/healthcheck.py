@@ -8,6 +8,7 @@ the probe automatically follows http vs https.
 from __future__ import annotations
 
 import sys
+from pathlib import Path
 
 import httpx
 
@@ -17,8 +18,18 @@ from .config import get_settings
 def main() -> int:
     settings = get_settings()
     url = f"{settings.scheme}://localhost:{settings.service_port}/health"
+
+    # For HTTPS, validate against our own self-signed certificate (its SAN
+    # includes localhost / 127.0.0.1) instead of disabling verification. For
+    # plain HTTP this value is ignored by httpx.
+    verify: str | bool = True
+    if settings.enable_tls:
+        cert = Path(settings.cert_dir) / "server.crt"
+        if cert.exists():
+            verify = str(cert)
+
     try:
-        response = httpx.get(url, verify=False, timeout=5)
+        response = httpx.get(url, verify=verify, timeout=5)
     except Exception as exc:  # noqa: BLE001 - any failure is unhealthy
         print(f"healthcheck failed: {exc}", file=sys.stderr)
         return 1

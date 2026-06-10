@@ -18,6 +18,13 @@ updates:
     labels:
       - "dependencies"
       - "docker"
+    ignore:
+      # Stay on the Python 3.12 line; take patch updates only. Major/minor
+      # Python bumps are opted into manually (wheel availability risk).
+      - dependency-name: "python"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
 
   # GitHub Actions used in workflows
   - package-ecosystem: "github-actions"
