@@ -2,5 +2,5 @@
 -r requirements.txt
 pytest>=8.2
 pytest-asyncio>=1.4.0
-respx>=0.21
+respx>=0.23.1
 pip-audit>=2.7
