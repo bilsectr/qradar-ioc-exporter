@@ -1,6 +1,6 @@
 # Development / test dependencies (installed on top of requirements.txt)
 -r requirements.txt
-pytest>=8.2
+pytest>=9.0.3
 pytest-asyncio>=1.4.0
 respx>=0.21
 pip-audit>=2.7
