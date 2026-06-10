@@ -3,16 +3,17 @@
 from __future__ import annotations
 
 import logging
+import secrets
 import warnings
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from typing import AsyncIterator
 
 from fastapi import Depends, FastAPI, HTTPException, Request, status
 from fastapi.responses import PlainTextResponse
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from .config import Settings, get_settings
-from .feed_store import FEED_TYPES, FeedStore
+from .feed_store import FeedStore
 from .logging_config import configure_logging
 from .qradar_client import QRadarClient
 from .scheduler import SyncService
@@ -54,9 +55,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     _suppress_insecure_warnings(settings)
 
     if not settings.auth_enabled:
-        reason = (
-            "REQUIRE_AUTH=false" if not settings.require_auth else "API_KEY empty"
-        )
+        reason = "REQUIRE_AUTH=false" if not settings.require_auth else "API_KEY empty"
         logger.warning(
             "Feed authentication is DISABLED (%s): feeds, metrics and "
             "/admin/sync are reachable without a token. Only expose this on a "
@@ -115,7 +114,10 @@ def _require_api_key(
             detail="Missing or malformed Authorization header",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    if credentials.credentials != settings.api_key:
+    # Constant-time comparison to avoid leaking the key via timing.
+    provided = credentials.credentials.encode("utf-8")
+    expected = settings.api_key.encode("utf-8")
+    if not secrets.compare_digest(provided, expected):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid API key",

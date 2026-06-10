@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import asyncio
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 FEED_TYPES: tuple[str, ...] = ("ip", "hash", "domain", "url")
 
@@ -41,7 +41,7 @@ class FeedStore:
     async def mark_sync_complete(self, duration_ms: float) -> None:
         """Record a successful sync run."""
         async with self._lock:
-            self._last_sync = datetime.now(timezone.utc)
+            self._last_sync = datetime.now(UTC)
             self._sync_count += 1
             self._last_sync_duration_ms = duration_ms
 
@@ -58,9 +58,7 @@ class FeedStore:
         """Return a snapshot of sync statistics and per-feed counts."""
         async with self._lock:
             return {
-                "last_sync": self._last_sync.isoformat()
-                if self._last_sync
-                else None,
+                "last_sync": self._last_sync.isoformat() if self._last_sync else None,
                 "last_sync_duration_ms": round(self._last_sync_duration_ms, 2),
                 "sync_count": self._sync_count,
                 "error_count": self._error_count,

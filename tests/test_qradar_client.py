@@ -54,9 +54,7 @@ async def test_pagination_walks_offsets(client: QRadarClient) -> None:
             data = [{"value": "a"}, {"value": "b"}]
         else:
             data = [{"value": "c"}, {"value": "d"}]
-        return httpx.Response(
-            200, json={"number_of_elements": 4, "data": data}
-        )
+        return httpx.Response(200, json={"number_of_elements": 4, "data": data})
 
     respx.get(_set_url("Big")).mock(side_effect=responder)
     values = await client.fetch_reference_set("Big")
@@ -110,9 +108,7 @@ async def test_retries_exhausted_raises(
     client: QRadarClient, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setattr("app.qradar_client.BACKOFF_BASE_SECONDS", 0)
-    route = respx.get(_set_url("Down")).mock(
-        return_value=httpx.Response(500)
-    )
+    route = respx.get(_set_url("Down")).mock(return_value=httpx.Response(500))
     with pytest.raises(QRadarError):
         await client.fetch_reference_set("Down")
     assert route.call_count == 3
@@ -137,8 +133,6 @@ async def test_empty_reference_set_returns_empty_list(
     client: QRadarClient,
 ) -> None:
     respx.get(_set_url("Empty")).mock(
-        return_value=httpx.Response(
-            200, json={"number_of_elements": 0, "data": []}
-        )
+        return_value=httpx.Response(200, json={"number_of_elements": 0, "data": []})
     )
     assert await client.fetch_reference_set("Empty") == []

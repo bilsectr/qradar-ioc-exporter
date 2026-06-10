@@ -36,9 +36,7 @@ async def app_client(settings: Settings):
     app.state.sync_service = FakeSyncService()
 
     transport = ASGITransport(app=app)
-    async with httpx.AsyncClient(
-        transport=transport, base_url="http://test"
-    ) as client:
+    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
         yield client, app
 
 
@@ -75,9 +73,7 @@ async def test_feed_requires_auth(app_client) -> None:
 
 async def test_feed_rejects_wrong_key(app_client) -> None:
     client, _ = app_client
-    resp = await client.get(
-        "/feeds/ip.txt", headers={"Authorization": "Bearer wrong"}
-    )
+    resp = await client.get("/feeds/ip.txt", headers={"Authorization": "Bearer wrong"})
     assert resp.status_code == 401
 
 
@@ -138,9 +134,7 @@ async def noauth_client(settings: Settings):
     app.state.sync_service = FakeSyncService()
 
     transport = ASGITransport(app=app)
-    async with httpx.AsyncClient(
-        transport=transport, base_url="http://test"
-    ) as client:
+    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
         yield client
 
 

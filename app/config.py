@@ -102,7 +102,7 @@ class Settings(BaseSettings):
         value = value.strip()
         for scheme in ("https://", "http://"):
             if value.lower().startswith(scheme):
-                value = value[len(scheme):]
+                value = value[len(scheme) :]
         return value.rstrip("/")
 
     @property

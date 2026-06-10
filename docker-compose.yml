@@ -11,6 +11,14 @@ services:
     volumes:
       - ./certs:/app/certs
       - ./logs:/app/logs
+    # --- Runtime hardening -------------------------------------------------
+    read_only: true                 # immutable root FS; writes only to volumes
+    tmpfs:
+      - /tmp                         # scratch space (root FS is read-only)
+    security_opt:
+      - no-new-privileges:true       # block privilege escalation (setuid, etc.)
+    cap_drop:
+      - ALL                          # service needs no Linux capabilities
     healthcheck:
       test: ["CMD", "python", "-m", "app.healthcheck"]
       interval: 30s

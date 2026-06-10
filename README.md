@@ -306,7 +306,15 @@ make build  up  down  logs  test  sync-now  health  install  run  certs  clean
 
 ---
 
+## Security
+
+See [`SECURITY.md`](SECURITY.md) for the vulnerability-reporting policy and
+operational hardening notes. CI runs ruff, pytest, hadolint, Trivy (image scan),
+gitleaks (secret scan) and CodeQL on every push/PR.
+
 ## License
 
-Provided as-is for internal threat-intelligence integration. Review and harden
-(`API_KEY`, certificates, network exposure) before production use.
+[MIT](LICENSE) © 2026 Sinan ŞAHİN.
+
+Review and harden (`API_KEY`, certificates, network exposure) before production
+use.

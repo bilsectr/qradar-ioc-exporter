@@ -1,0 +1,11 @@
+# Normalize all text files to LF in the repository (prevents CRLF issues such
+# as a broken Makefile when checked out or copied onto Linux hosts/containers).
+* text=auto eol=lf
+
+# Treat generated/credential material and images as binary.
+*.crt binary
+*.key binary
+*.pem binary
+*.png binary
+*.jpg binary
+*.ico binary

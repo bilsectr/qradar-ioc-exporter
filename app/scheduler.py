@@ -44,8 +44,11 @@ class SyncService:
             await self._store.record_error()
             logger.error(
                 "Reference set sync failed",
-                extra={"feed_type": feed_type, "refset": refset_name,
-                       "error": str(exc)},
+                extra={
+                    "feed_type": feed_type,
+                    "refset": refset_name,
+                    "error": str(exc),
+                },
             )
             return -1
         except Exception:  # noqa: BLE001 - never let one set crash the job
@@ -59,8 +62,11 @@ class SyncService:
         await self._store.update(feed_type, entries)
         logger.info(
             "Reference set synced",
-            extra={"feed_type": feed_type, "refset": refset_name,
-                   "entry_count": len(entries)},
+            extra={
+                "feed_type": feed_type,
+                "refset": refset_name,
+                "entry_count": len(entries),
+            },
         )
         return len(entries)
 
@@ -74,7 +80,7 @@ class SyncService:
             results = await asyncio.gather(
                 *(self._sync_one(ft, name) for ft, name in ref_sets.items())
             )
-            counts = dict(zip(ref_sets.keys(), results))
+            counts = dict(zip(ref_sets.keys(), results, strict=True))
 
             duration_ms = (time.perf_counter() - start) * 1000.0
             await self._store.mark_sync_complete(duration_ms)

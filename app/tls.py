@@ -43,11 +43,9 @@ def ensure_certificate(cert_dir: str) -> tuple[str, str]:
 
     key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
 
-    subject = issuer = x509.Name(
-        [x509.NameAttribute(NameOID.COMMON_NAME, COMMON_NAME)]
-    )
+    subject = issuer = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, COMMON_NAME)])
 
-    now = datetime.datetime.now(datetime.timezone.utc)
+    now = datetime.datetime.now(datetime.UTC)
     san = x509.SubjectAlternativeName(
         [
             x509.DNSName("localhost"),
@@ -65,9 +63,7 @@ def ensure_certificate(cert_dir: str) -> tuple[str, str]:
         .not_valid_before(now - datetime.timedelta(minutes=5))
         .not_valid_after(now + datetime.timedelta(days=VALIDITY_DAYS))
         .add_extension(san, critical=False)
-        .add_extension(
-            x509.BasicConstraints(ca=False, path_length=None), critical=True
-        )
+        .add_extension(x509.BasicConstraints(ca=False, path_length=None), critical=True)
         .sign(key, hashes.SHA256())
     )
 
@@ -78,9 +74,7 @@ def ensure_certificate(cert_dir: str) -> tuple[str, str]:
             encryption_algorithm=serialization.NoEncryption(),
         )
     )
-    cert_path.write_bytes(
-        certificate.public_bytes(serialization.Encoding.PEM)
-    )
+    cert_path.write_bytes(certificate.public_bytes(serialization.Encoding.PEM))
 
     # Best-effort lock-down of the private key (no-op semantics on Windows).
     try:

@@ -51,7 +51,7 @@ class QRadarClient:
             limits=httpx.Limits(max_connections=10, max_keepalive_connections=5),
         )
 
-    async def __aenter__(self) -> "QRadarClient":
+    async def __aenter__(self) -> QRadarClient:
         return self
 
     async def __aexit__(self, *exc: object) -> None:
@@ -72,8 +72,13 @@ class QRadarClient:
         for attempt in range(1, MAX_RETRIES + 1):
             try:
                 response = await self._client.get(path, params=params)
-            except (httpx.ConnectError, httpx.ConnectTimeout, httpx.ReadTimeout,
-                    httpx.RemoteProtocolError, httpx.PoolTimeout) as exc:
+            except (
+                httpx.ConnectError,
+                httpx.ConnectTimeout,
+                httpx.ReadTimeout,
+                httpx.RemoteProtocolError,
+                httpx.PoolTimeout,
+            ) as exc:
                 last_exc = exc
                 logger.warning(
                     "QRadar request failed (connection)",
@@ -103,9 +108,7 @@ class QRadarClient:
             if attempt < MAX_RETRIES:
                 await asyncio.sleep(BACKOFF_BASE_SECONDS * (2 ** (attempt - 1)))
 
-        raise QRadarError(
-            f"Exhausted {MAX_RETRIES} retries for {path}"
-        ) from last_exc
+        raise QRadarError(f"Exhausted {MAX_RETRIES} retries for {path}") from last_exc
 
     async def fetch_reference_set(self, name: str) -> list[str]:
         """Return every ``value`` string in the named reference set.
