@@ -65,6 +65,14 @@ class Settings(BaseSettings):
         default="changeme-secret-key",
         description="Bearer token required to read the feed endpoints.",
     )
+    require_auth: bool = Field(
+        default=True,
+        description=(
+            "Require 'Authorization: Bearer <API_KEY>' on the feed/metrics/"
+            "admin endpoints. Set false (or leave API_KEY empty) to serve the "
+            "feeds without any authentication."
+        ),
+    )
 
     # --- TLS ---------------------------------------------------------------
     enable_tls: bool = Field(
@@ -105,6 +113,11 @@ class Settings(BaseSettings):
     def scheme(self) -> str:
         """URL scheme this service listens on ('https' or 'http')."""
         return "https" if self.enable_tls else "http"
+
+    @property
+    def auth_enabled(self) -> bool:
+        """Auth is enforced only when required AND a non-empty key is set."""
+        return self.require_auth and bool(self.api_key.strip())
 
     @property
     def reference_sets(self) -> dict[str, str]:

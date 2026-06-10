@@ -53,6 +53,17 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     settings: Settings = app.state.settings
     _suppress_insecure_warnings(settings)
 
+    if not settings.auth_enabled:
+        reason = (
+            "REQUIRE_AUTH=false" if not settings.require_auth else "API_KEY empty"
+        )
+        logger.warning(
+            "Feed authentication is DISABLED (%s): feeds, metrics and "
+            "/admin/sync are reachable without a token. Only expose this on a "
+            "trusted network.",
+            reason,
+        )
+
     store = FeedStore()
     client = QRadarClient(
         base_url=settings.qradar_base_url,
@@ -90,8 +101,14 @@ def _require_api_key(
     request: Request,
     credentials: HTTPAuthorizationCredentials | None = Depends(_bearer),
 ) -> None:
-    """Validate the ``Authorization: Bearer <API_KEY>`` header."""
+    """Validate the ``Authorization: Bearer <API_KEY>`` header.
+
+    Becomes a no-op when authentication is disabled (``REQUIRE_AUTH=false`` or
+    an empty ``API_KEY``), allowing unauthenticated access to the feeds.
+    """
     settings: Settings = request.app.state.settings
+    if not settings.auth_enabled:
+        return
     if credentials is None or credentials.scheme.lower() != "bearer":
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

@@ -111,7 +111,8 @@ All configuration is via environment variables (or a `.env` file). Copy
 | `SERVICE_PORT` | `8443` | Listen port. |
 | `ENABLE_TLS` | `true` | `true` = HTTPS with a self-signed cert. `false` = plain HTTP (see [§6](#6-fortigate-integration)). |
 | `LOG_LEVEL` | `INFO` | `DEBUG`/`INFO`/`WARNING`/`ERROR`/`CRITICAL`. |
-| `API_KEY` | `changeme-secret-key` | **Bearer token required to read feeds, metrics and trigger sync.** Change this. |
+| `REQUIRE_AUTH` | `true` | Require a Bearer token on feed/metrics/admin endpoints. Set `false` (or leave `API_KEY` empty) to serve feeds **without authentication**. |
+| `API_KEY` | `changeme-secret-key` | **Bearer token required to read feeds, metrics and trigger sync** (when `REQUIRE_AUTH=true`). Change this. |
 
 > ⚠️ **Reference set names must match QRadar exactly.** Prefer underscores over
 > spaces (`Blocked_IPs`, not `Blocked IPs`) to avoid encoding issues.
@@ -216,16 +217,21 @@ one:
 
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
-| `GET` | `/feeds/ip.txt` | Bearer | Blocked IPs, one per line. |
-| `GET` | `/feeds/hash.txt` | Bearer | Blocked file hashes, one per line. |
-| `GET` | `/feeds/domain.txt` | Bearer | Blocked domains, one per line. |
-| `GET` | `/feeds/url.txt` | Bearer | Blocked URLs, one per line. |
+| `GET` | `/feeds/ip.txt` | Bearer² | Blocked IPs, one per line. |
+| `GET` | `/feeds/hash.txt` | Bearer² | Blocked file hashes, one per line. |
+| `GET` | `/feeds/domain.txt` | Bearer² | Blocked domains, one per line. |
+| `GET` | `/feeds/url.txt` | Bearer² | Blocked URLs, one per line. |
 | `GET` | `/health` | none¹ | `{"status":"ok","last_sync":...,"counts":{...}}` |
-| `GET` | `/metrics` | Bearer | Sync stats: duration, counts, sync/error totals. |
-| `POST` | `/admin/sync` | Bearer | Trigger an immediate sync. |
+| `GET` | `/metrics` | Bearer² | Sync stats: duration, counts, sync/error totals. |
+| `POST` | `/admin/sync` | Bearer² | Trigger an immediate sync. |
 
 ¹ `/health` is intentionally unauthenticated so container/orchestrator probes
 (including this image's `HEALTHCHECK`) can reach it without credentials.
+
+² Bearer auth applies only when `REQUIRE_AUTH=true` (default) **and** `API_KEY`
+is non-empty. With `REQUIRE_AUTH=false` (or an empty `API_KEY`) these endpoints
+are served without authentication — convenient for older FortiOS that can't send
+a custom header, but only safe on a trusted network.
 
 **Feed response contract**
 

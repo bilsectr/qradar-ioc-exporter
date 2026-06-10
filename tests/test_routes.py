@@ -122,3 +122,36 @@ async def test_admin_sync_requires_auth(app_client) -> None:
     client, _ = app_client
     resp = await client.post("/admin/sync")
     assert resp.status_code == 401
+
+
+# --- Auth-disabled mode (REQUIRE_AUTH=false) ------------------------------
+
+
+@pytest.fixture
+async def noauth_client(settings: Settings):
+    noauth = settings.model_copy(update={"require_auth": False})
+    app = create_app(noauth)
+
+    store = FeedStore()
+    await store.update("ip", ["9.9.9.9"])
+    app.state.store = store
+    app.state.sync_service = FakeSyncService()
+
+    transport = ASGITransport(app=app)
+    async with httpx.AsyncClient(
+        transport=transport, base_url="http://test"
+    ) as client:
+        yield client
+
+
+async def test_feed_accessible_without_token_when_auth_disabled(
+    noauth_client,
+) -> None:
+    resp = await noauth_client.get("/feeds/ip.txt")  # no auth header
+    assert resp.status_code == 200
+    assert resp.text == "9.9.9.9\n"
+
+
+async def test_metrics_and_admin_open_when_auth_disabled(noauth_client) -> None:
+    assert (await noauth_client.get("/metrics")).status_code == 200
+    assert (await noauth_client.post("/admin/sync")).status_code == 200
