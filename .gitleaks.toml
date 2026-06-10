@@ -1,0 +1,16 @@
+# gitleaks configuration — extends the default ruleset with an allowlist for
+# the documented placeholder values that are intentionally committed.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Placeholder credentials in example/config/docs files"
+paths = [
+  '''\.env\.example''',
+  '''README\.md''',
+  '''SECURITY\.md''',
+]
+regexes = [
+  '''changeme-secret-key''',
+  '''your-sec-token-here''',
+]

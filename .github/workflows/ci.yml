@@ -63,7 +63,7 @@ jobs:
       - name: Build image
         run: docker build -t qradar-ioc-exporter:ci .
       - name: Trivy vulnerability scan
-        uses: aquasecurity/trivy-action@0.24.0
+        uses: aquasecurity/trivy-action@0.36.0
         with:
           image-ref: qradar-ioc-exporter:ci
           format: sarif
@@ -82,8 +82,12 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      # For organization repos, set the GITLEAKS_LICENSE secret (free for
-      # individuals). Personal repos need no license.
-      - uses: gitleaks/gitleaks-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # Use the gitleaks CLI directly: the GitHub Action wrapper requires a
+      # paid license for organization repos, the binary does not.
+      - name: Install gitleaks
+        run: |
+          version=8.21.2
+          curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/v${version}/gitleaks_${version}_linux_x64.tar.gz" \
+            | sudo tar -xz -C /usr/local/bin gitleaks
+      - name: Scan for secrets
+        run: gitleaks detect --source . --redact --no-banner
