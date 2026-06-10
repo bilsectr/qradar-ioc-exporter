@@ -1,5 +1,5 @@
 # Runtime dependencies
-fastapi>=0.110,<1.0
+fastapi>=0.136.3,<1.0
 uvicorn[standard]>=0.27,<1.0
 httpx>=0.27,<1.0
 APScheduler>=3.10,<4.0
