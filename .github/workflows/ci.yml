@@ -73,7 +73,7 @@ jobs:
           trivy image --format sarif --output trivy-image.sarif \
             --severity CRITICAL,HIGH --ignore-unfixed qradar-ioc-exporter:ci
       - name: Upload Trivy results to Security tab
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: trivy-image.sarif
 
