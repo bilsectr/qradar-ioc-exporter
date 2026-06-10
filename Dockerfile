@@ -5,6 +5,12 @@ ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=1
 
+# Apply the latest OS security patches: the base image lags behind Debian's
+# security repo for freshly disclosed CVEs (e.g. openssl). Intentional full
+# upgrade, so DL3005 is suppressed.
+# hadolint ignore=DL3005
+RUN apt-get update && apt-get upgrade -y && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
 # Install dependencies first for layer caching.
