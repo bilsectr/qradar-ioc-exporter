@@ -19,7 +19,7 @@ jobs:
       id-token: write          # cosign keyless (OIDC) signing
       attestations: write      # provenance/SBOM attestations
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Resolve lowercase image name
         id: img
