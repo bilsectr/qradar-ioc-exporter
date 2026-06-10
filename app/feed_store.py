@@ -50,10 +50,6 @@ class FeedStore:
         async with self._lock:
             self._error_count += 1
 
-    async def get_counts(self) -> dict[str, int]:
-        async with self._lock:
-            return {ft: len(values) for ft, values in self._data.items()}
-
     async def get_stats(self) -> dict[str, object]:
         """Return a snapshot of sync statistics and per-feed counts."""
         async with self._lock:

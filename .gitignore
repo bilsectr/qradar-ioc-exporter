@@ -3,6 +3,10 @@
 *.env
 !.env.example
 
+# Local compose files (copied from the *.example templates)
+docker-compose.override.yml
+docker-compose.prod.yml
+
 # Generated TLS material
 certs/
 *.crt

@@ -1,0 +1,42 @@
+# Keep the build context small and secrets out of it. The Dockerfile only
+# COPYs requirements.txt and app/, so everything else is unnecessary here.
+
+# VCS & CI
+.git
+.github
+.gitattributes
+.gitignore
+.gitleaks.toml
+
+# Secrets & runtime-generated material
+.env
+*.env
+certs/
+logs/
+*.log
+*.crt
+*.key
+*.pem
+
+# Virtualenvs / Python caches
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Tests, docs and dev-only config (not needed at runtime)
+tests/
+*.md
+LICENSE
+Makefile
+ruff.toml
+pytest.ini
+requirements-dev.txt
+docker-compose*.yml
+docker-compose*.yml.example

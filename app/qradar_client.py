@@ -37,8 +37,6 @@ class QRadarClient:
         timeout: float = 30.0,
     ) -> None:
         self._base_url = base_url.rstrip("/")
-        self._token = token
-        self._api_version = api_version
         self._client = httpx.AsyncClient(
             base_url=self._base_url,
             verify=verify_ssl,
