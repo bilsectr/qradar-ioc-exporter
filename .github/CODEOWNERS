@@ -1,0 +1,12 @@
+# Code owners — automatically requested for review on matching changes.
+# See https://docs.github.com/articles/about-code-owners
+# Adjust the handle below if your GitHub username/team differs.
+
+# Default owner for everything in the repository.
+*                   @sinansh
+
+# Security-sensitive areas get explicit ownership.
+/.github/           @sinansh
+/app/tls.py         @sinansh
+/app/main.py        @sinansh
+SECURITY.md         @sinansh

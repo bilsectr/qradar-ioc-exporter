@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "qradar-ioc-exporter"
+version = "1.0.0"
+description = "Bridge IBM QRadar Reference Sets to Fortigate External Block List feeds."
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+authors = [{ name = "Sinan ŞAHİN" }]
+keywords = ["qradar", "fortigate", "threat-intelligence", "ioc", "siem"]
+dynamic = ["dependencies"]
+
+[project.urls]
+Homepage = "https://github.com/bilsectr/qradar-ioc-exporter"
+Issues = "https://github.com/bilsectr/qradar-ioc-exporter/issues"
+
+[tool.setuptools]
+packages = ["app"]
+
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.txt"] }
+
+# --- Ruff (lint + format) --------------------------------------------------
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+extend-exclude = [".venv", "certs", "logs"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "C4", "W"]
+
+[tool.ruff.lint.flake8-bugbear]
+# FastAPI uses these in argument defaults by design (B008 false positives).
+extend-immutable-calls = ["fastapi.Depends", "fastapi.Security"]
+
+# --- Pytest ----------------------------------------------------------------
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+addopts = "-ra"
+filterwarnings = ["ignore::DeprecationWarning"]

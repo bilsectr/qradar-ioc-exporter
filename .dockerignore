@@ -35,8 +35,7 @@ tests/
 *.md
 LICENSE
 Makefile
-ruff.toml
-pytest.ini
+pyproject.toml
 requirements-dev.txt
 docker-compose*.yml
 docker-compose*.yml.example
