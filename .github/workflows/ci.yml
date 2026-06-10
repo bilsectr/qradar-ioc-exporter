@@ -62,14 +62,16 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build image
         run: docker build -t qradar-ioc-exporter:ci .
-      - name: Trivy vulnerability scan
-        uses: aquasecurity/trivy-action@0.36.0
-        with:
-          image-ref: qradar-ioc-exporter:ci
-          format: sarif
-          output: trivy-image.sarif
-          severity: CRITICAL,HIGH
-          ignore-unfixed: true
+      - name: Install Trivy
+        run: |
+          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh \
+            | sudo sh -s -- -b /usr/local/bin
+      - name: Trivy vulnerability scan (SARIF)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          trivy image --format sarif --output trivy-image.sarif \
+            --severity CRITICAL,HIGH --ignore-unfixed qradar-ioc-exporter:ci
       - name: Upload Trivy results to Security tab
         uses: github/codeql-action/upload-sarif@v3
         with:
