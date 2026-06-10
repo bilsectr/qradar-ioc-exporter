@@ -306,11 +306,46 @@ make build  up  down  logs  test  sync-now  health  install  run  certs  clean
 
 ---
 
+## Container image (GHCR)
+
+Images are built and published automatically to the GitHub Container Registry by
+the [`Container image`](.github/workflows/docker-image.yml) workflow:
+
+| Trigger | Tags produced |
+|---------|---------------|
+| push to `main` | `edge`, `sha-<short>` |
+| git tag `vX.Y.Z` | `X.Y.Z`, `X.Y`, `latest` |
+
+Each image is **multi-arch (amd64 + arm64)**, **scanned by Trivy before
+publishing** (build fails on CRITICAL/HIGH), ships an **SBOM + provenance
+attestation**, and is **signed with cosign** (keyless / Sigstore).
+
+Deploy on a server by pulling instead of building — see
+[`docker-compose.prod.yml.example`](docker-compose.prod.yml.example):
+
+```bash
+docker compose -f docker-compose.prod.yml pull
+docker compose -f docker-compose.prod.yml up -d
+```
+
+Verify the signature before trusting an image:
+
+```bash
+cosign verify ghcr.io/<owner>/qradar-ioc-exporter:1.2.3 \
+  --certificate-identity-regexp "https://github.com/<owner>/qradar-ioc-exporter/.*" \
+  --certificate-oidc-issuer https://token.actions.githubusercontent.com
+```
+
+> Pin a released version (`:1.2.3`) in production rather than `:latest`/`:edge`.
+
+---
+
 ## Security
 
 See [`SECURITY.md`](SECURITY.md) for the vulnerability-reporting policy and
 operational hardening notes. CI runs ruff, pytest, hadolint, Trivy (image scan),
-gitleaks (secret scan) and CodeQL on every push/PR.
+gitleaks (secret scan) and CodeQL on every push/PR. Released images are signed
+and carry SBOM + provenance attestations (see [Container image](#container-image-ghcr)).
 
 ## License
 
