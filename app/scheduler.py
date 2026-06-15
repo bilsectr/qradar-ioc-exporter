@@ -115,4 +115,18 @@ class SyncService:
 
     def trigger_now(self) -> None:
         """Fire a sync as soon as the event loop is free (non-blocking)."""
-        asyncio.create_task(self.sync_all_feeds())
+        async def _run_with_retry(max_attempts: int = 3, delay: float = 10.0) -> None:
+            for attempt in range(1, max_attempts + 1):
+                try:
+                    result = await self.sync_all_feeds()
+                    # En az bir feed başarılıysa (-1 değilse) dur
+                    if any(v >= 0 for v in result.values()):
+                        return
+                except Exception:
+                    logger.exception("trigger_now attempt %d failed", attempt)
+                if attempt < max_attempts:
+                    logger.warning("Sync attempt %d failed, retrying in %.0fs", attempt, delay)
+                    await asyncio.sleep(delay)
+            logger.error("All %d startup sync attempts failed", max_attempts)
+
+        asyncio.create_task(_run_with_retry())
